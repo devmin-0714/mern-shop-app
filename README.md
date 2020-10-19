@@ -175,7 +175,7 @@ export default UploadProductPage
 
 ---
 
-### 1-4. Drop-Zone 적용하기<br>1-5. 이미지 파일을 서버로 보내기<br>1-6. 1-6. multer를 이용하여 이미지 저장
+### 1-4. Drop-Zone 적용하기<br>1-5. 이미지 파일을 서버로 보내기<br>1-6. multer를 이용하여 이미지 저장
 
 - **Utils 폴더 안에 파일 업로드 파일 만들기**
 
@@ -243,6 +243,7 @@ export default FileUpload
   - 1. 프론트에서 백엔드로 `axios`를 이용해 `파일 전달`
   - 2. 백엔드에서 `multer`를 이용해 `파일 저장`
   - 3. 백엔드에서 프론트로 `파일저장 정보 전달`
+  - 4. `response.data` 정보를 넣을 폼 생성
 
 ```js
 // components/utils/FileUpload.js
@@ -272,9 +273,7 @@ function FileUpload() {
             .then(response => {
                 if (response.data.success) {
                     console.log(response.data)
-
-                    // 4. 백엔드에 최종정보(response.data) 전달하기위해 저장
-                    setImages([...Images, response.data.filePath])
+)
                 } else {
                     alert('파일을 저장하는데 실패했습니다.')
                 }
@@ -354,6 +353,9 @@ function FileUpload() {
 
     ...
 
+    // 4. 백엔드에 최종정보(response.data) 전달하기위해 저장
+    setImages([...Images, response.data.filePath]
+
     return (
 
         ...
@@ -380,23 +382,3 @@ export default FileUpload
 ```
 
 ---
-
-### 1-7. 이미지 지우기
-
-### 1-8. 이미지 State를 부모 컴포넌트로 업데이트하기
-
-### 1-9. 모든 상품 정보를 데이터베이스에 저장하기
-
-## 2. 랜딩 페이지 만들기
-
-### 2-1.
-
-## 3. 상세 보기 페이지 만들기
-
-### 3-1.
-
-## 4. 카트 페이지 만들기
-
-### 4-1.
-
-## 5. 결제 내역 페이지 만들기
