@@ -382,3 +382,33 @@ export default FileUpload
 ```
 
 ---
+
+### 1-7. 이미지 지우기
+
+- **onDelete Function 만들기**
+
+```js
+// components/utils/FileUpload.js
+function FileUpload() {
+
+  const deleteHandler = (image) => {
+
+        const currentIndex = Images.indexOf(image)
+        let newImages = [...Images]
+        // splice : currentIndex부터 1개의 아이템을 삭제
+        newImages.splice(currentIndex, 1)
+        setImages(newImages)
+    }
+
+  return (
+
+    {Images.map((image, index) => (
+        <div onClick={() => deleteHandler(image)} key={index}>
+            <img style={{ minWidth: '300px', width: '300px', height: '240px' }}
+                src={`http://localhost:5000/${image}`}
+            />
+        </div>
+    ))}
+  )
+}
+```
