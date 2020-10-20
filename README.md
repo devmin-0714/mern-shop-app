@@ -412,3 +412,56 @@ function FileUpload() {
   )
 }
 ```
+
+---
+
+### 1-8. 이미지 State를 부모 컴포넌트로 업데이트하기
+
+- `FileUpload.js`(자식)에 있는 `Image`정보를<br>`UploadProductPage.js`(부모)에 보내줘야<br>`Submit Button`을 실행했을 때 `Server`로 전달된다.
+
+```js
+// UploadProductPage.js
+function UploadProductPage() {
+
+  const [Images, setImages] = useState([])
+
+  const updateImages = (newImages) => {
+        setImages(newImages)
+  }
+
+  return(
+
+    {/* DropZone */}
+            <FileUpload refreshFunction={updateImages}/>
+
+  )
+}
+
+// components/utils/FileUpload.js
+function FileUpload(props) {
+
+  const dropHandler = (files) => {
+        ...
+        axios.post('/api/product/image', formData, config)
+            .then(response => {
+                if (response.data.success) {
+                    ...
+                    props.refreshFunction([...Images, response.data.filePath])
+                } else {
+                    ...
+                }
+            })
+    }
+
+  const deleteHandler = (image) => {
+        ...
+        props.refreshFunction(newImages)
+    }
+
+  return(
+    ...
+  )
+}
+```
+
+---

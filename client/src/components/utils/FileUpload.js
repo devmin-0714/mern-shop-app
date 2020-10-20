@@ -5,29 +5,29 @@ import axios from 'axios'
 
 
 // 1. 프론트엔드에서 파일전달
-function FileUpload() {
+function FileUpload(props) {
 
     // 4. response.data 정보를 넣을 폼 생성
     const [Images, setImages] = useState([])
 
     const dropHandler = (files) => {
 
-        // 이미지를 AJAX로 업로드할 경우 폼 전송이 필요
+        // 1. 이미지를 AJAX로 업로드할 경우 폼 전송이 필요
         let formData = new FormData()
 
         const config = {
             header: { 'content-type': 'multipart/form-data'}
         }
-        // append를 통해 키-값 형식으로 추가
+        // 1. append를 통해 키-값 형식으로 추가
         formData.append("file", files[0])
 
+        // 1.
         axios.post('/api/product/image', formData, config)
             .then(response => {
                 if (response.data.success) {
-                    console.log(response.data)
-
                     // 4. 백엔드에 최종정보(response.data) 전달하기위해 저장
                     setImages([...Images, response.data.filePath])
+                    props.refreshFunction([...Images, response.data.filePath])
                 } else {
                     alert('파일을 저장하는데 실패했습니다.')
                 }
@@ -42,6 +42,7 @@ function FileUpload() {
         // splice : currentIndex부터 1개의 아이템을 삭제
         newImages.splice(currentIndex, 1)
         setImages(newImages)
+        props.refreshFunction(newImages)
     }
 
 
