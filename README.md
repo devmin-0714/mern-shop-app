@@ -421,7 +421,7 @@ function FileUpload() {
 
 ```js
 // UploadProductPage.js
-function UploadProductPage() {
+function UploadProductPage(props) {
 
   const [Images, setImages] = useState([])
 
@@ -462,6 +462,132 @@ function FileUpload(props) {
     ...
   )
 }
+```
+
+---
+
+### 1-9. 모든 상품 정보를 데이터베이스에 저장하기
+
+- **Product Model 만들기**
+
+```js
+// server/models/Product.js
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
+
+const productSchema = mongoose.Schema(
+  {
+    writer: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    title: {
+      type: String,
+      maxlength: 50,
+    },
+    description: {
+      type: String,
+    },
+    price: {
+      type: Number,
+      default: 0,
+    },
+    images: {
+      type: Array,
+      default: [],
+    },
+    sold: {
+      type: Number,
+      maxlength: 100,
+      default: 0,
+    },
+    continents: {
+      type: Number,
+      default: 1,
+    },
+    views: {
+      type: Number,
+      default: 0,
+    },
+  },
+  { timestamps: true }
+) // 등록시간
+
+const Product = mongoose.model('Product', productSchema)
+
+module.exports = { Product }
+```
+
+- **onSubmit Function 만들기, 모든 정보를 서버로 보내기**
+
+```js
+// UploadProductPage.js
+import axios from 'axios'
+
+function UploadProductPage(props) {
+
+  const submitHandler = (event) => {
+        event.preventDefault()
+
+        // 모든 항목을 채우지 않으면 alert를 띄운다
+        if (!Title || !Description || !Price || !Continent || Images.length === 0) {
+            return alert(" 모든 값을 넣어주셔야 합니다.")
+        }
+
+        // 모든 정보를 서버로 보낸다
+
+        const body = {
+            // UploadProductPage.js는 auth.js의 자식컴포넌트이다.
+            // <SpecificComponent {...props} user={user} />
+            //로그인 된 사람의 ID
+            writer: props.user.userData._id,
+            title: Title,
+            description: Description,
+            price: Price,
+            images: Images,
+            continents: Continent
+        }
+
+        axios.post('/api/product', body)
+            .then(response => {
+                if (response.data.success) {
+                    alert('상품 업로드에 성공 했습니다.')
+                    props.history.push('/')
+                } else {
+                    alert('상품 업로드에 실패 했습니다.')
+                }
+            })
+  }
+  return (
+
+    <Form onSubmit={submitHandler}>
+      ...
+    <Button type="submit">
+        확인
+    </Button>
+  )
+
+}
+```
+
+- **보내진 정보를 몽고DB에 저장하기**
+
+```js
+// server/index.js
+app.use('/api/product', require('./routes/product'))
+
+// server/routes/product.js
+const { Product } = require('../models/Product')
+
+router.post('/', (req, res) => {
+  // 보내진 정보를 몽고DB에 저장한다
+  const product = new Product(req.body)
+
+  product.save((err) => {
+    if (err) return res.status(400).json({ success: false, err })
+    return res.status(200).json({ success: true })
+  })
+})
 ```
 
 ---

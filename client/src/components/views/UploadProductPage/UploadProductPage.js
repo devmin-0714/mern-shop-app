@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Button, Form, Input } from 'antd'
 import FileUpload from '../../utils/FileUpload'
+import axios from 'axios'
 
 const { TextArea } = Input
 
@@ -14,7 +15,7 @@ const Continents = [
     { key: 7, value: "Antarctica" }
 ]
 
-function UploadProductPage() {
+function UploadProductPage(props) {
 
     const [Title, setTitle] = useState('')
     const [Description, setDescription] = useState('')
@@ -42,13 +43,46 @@ function UploadProductPage() {
         setImages(newImages)
     }
 
+    const submitHandler = (event) => {
+        event.preventDefault()
+
+        // 모든 항목을 채우지 않으면 alert를 띄운다
+        if (!Title || !Description || !Price || !Continent || Images.length === 0) {
+            return alert(" 모든 값을 넣어주셔야 합니다.")
+        }
+
+        // 모든 정보를 서버로 보낸다
+
+        const body = {
+            // UploadProductPage.js는 auth.js의 자식컴포넌트이다.
+            // <SpecificComponent {...props} user={user} />
+            //로그인 된 사람의 ID
+            writer: props.user.userData._id,
+            title: Title,
+            description: Description,
+            price: Price,
+            images: Images,
+            continents: Continent
+        }
+
+        axios.post('/api/product', body)
+            .then(response => {
+                if (response.data.success) {
+                    alert('상품 업로드에 성공 했습니다.')
+                    props.history.push('/')
+                } else {
+                    alert('상품 업로드에 실패 했습니다.')
+                }
+            })
+    }
+
     return (
         <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                 <h2> 여행 상품 업로드 </h2>
             </div>
 
-        <Form>
+        <Form onSubmit={submitHandler}>
 
             {/* DropZone */}
             <FileUpload refreshFunction={updateImages}/>
@@ -76,7 +110,7 @@ function UploadProductPage() {
             </select>
             <br />
             <br />
-            <Button>
+            <Button type="submit">
                 확인
             </Button>
         </Form>
