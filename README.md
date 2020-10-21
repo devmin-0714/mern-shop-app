@@ -747,3 +747,99 @@ export default ImageSlider
 ```
 
 ---
+
+## 2-4. 더보기 버튼 만들기
+
+- **더보기 버튼을 위한 onClick Function 만들기<br>MongoDB Method인 SKIP과 LIMIT을 위한 STATE 만들기**
+  - `LIMIT` : 처음 데이터를 가져올때와 더보기 버튼을 눌러서 가져올때<br>얼마나 많은 데이터를 한번에 가져오는지
+  - `SKIP` : 어디서부터 데이터를 가져 오는지에 대한 위치<br>처음에는 0부터 시작, LIMIT이 6이라면 다음 번에는 `2rd Skip = 0 + 6`
+
+```js
+// LandingPage.js
+function LandingPage() {
+
+  const [Skip, setSkip] = useState(0)
+    const [Limit, setLimit] = useState(8)
+    const [PostSize, setPostSize] = useState(0)
+
+    useEffect(() => {
+
+        // 상품 8개만 가져오기
+        let body = {
+            skip: Skip,
+            limit: Limit
+        }
+
+        getProducts(body)
+
+    }, [])
+
+    const getProducts = (body) => {
+        axios.post('/api/product/products', body)
+            .then(response => {
+                if (response.data.success) {
+                    if (body.loadMore) {
+                        setProducts([...Products, ...response.data.productInfo])
+                    } else {
+                        setProducts(response.data.productInfo)
+                    }
+                    setPostSize(response.data.postSize)
+                } else {
+                    alert(' 상품들을 가져오는데 실패했습니다. ')
+                }
+            })
+    }
+
+    const loadMoreHandler = () => {
+
+        // 더보기 버튼을 눌렀을 때 추가 product를 가져올때는 Skip 부분이 달라진다
+        // Skip (0 -> 8) + Limit (8 -> 8)
+        let skip = Skip + Limit
+
+        let body = {
+            skip: skip,
+            limit: Limit,
+            loadMore: true
+        }
+
+        getProducts(body)
+        setSkip(skip)
+    }
+
+  return (
+
+    {PostSize >= Limit &&
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button onClick={loadMoreHandler}>더보기</button>
+        </div>
+    }
+
+  )
+}
+
+// server/routes/product.js
+router.post('/products', (req, res) => {
+
+  // product collection에 들어있는 모든 상품 정보를 가져오기
+
+  // limit과 skip을 이용해 제한된 수의 product 가져오기
+  let limit = req.body.limit ? parseInt(req.body.limit) : 20
+  let skip = req.body.skip ? parseInt(req.body.skip) : 0
+
+  Product.find()
+    // populate : writer의 모든정보를 가져올수 있다
+    .populate('writer')
+    .skip(skip)
+    .limit(limit)
+    .exec((err, productInfo) => {
+      if (err) return res.status(400).json({ success: false, err})
+      return res.status(200).json({
+        success: true, productInfo,
+        postSize: productInfo.length
+      })
+    })
+
+})
+```
+
+---
