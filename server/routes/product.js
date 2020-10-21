@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('express')
 const router = express.Router();
 const multer = require('multer')
 const { Product } = require('../models/Product')
@@ -44,6 +44,20 @@ router.post('/', (req, res) => {
       if (err) return res.status(400).json({ success: false, err })
       return res.status(200).json({ success: true })
   })
+})
+
+
+router.post('/products', (req, res) => {
+
+  // product collection에 들어있는 모든 상품 정보를 가져오기
+  Product.find()
+    // populate : writer의 모든정보를 가져올수 있다
+    .populate('writer')
+    .exec((err, productInfo) => {
+      if (err) return res.status(400).json({ success: false, err})
+      return res.status(200).json({ success: true, productInfo})
+    })
+
 })
 
 module.exports = router

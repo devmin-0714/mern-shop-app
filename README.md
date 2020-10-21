@@ -577,3 +577,47 @@ router.post('/', (req, res) => {
 ```
 
 ---
+
+## 2. 랜딩 페이지 만들기
+
+### 2-1. 데이터베이스에 들어 있는 모든 상품을 가져오기
+
+- **몽고 DB에 저장되어 있는 데이터들을 가져오기**
+
+```js
+// LandingPage.js
+import React, { useEffect } from 'react'
+import axios from 'axios'
+
+function LandingPage() {
+  useEffect(() => {
+    axios.post('/api/product/products').then((response) => {
+      if (response.data.success) {
+        console.log(response.data)
+      } else {
+        alert(' 상품들을 가져오는데 실패했습니다. ')
+      }
+    })
+  }, [])
+
+  return <div>Landing Page</div>
+}
+
+export default LandingPage
+
+// server/routes/product.js
+const { Product } = require('../models/Product')
+
+router.post('/products', (req, res) => {
+  // product collection에 들어있는 모든 상품 정보를 가져오기
+  Product.find()
+    // populate : writer의 모든정보를 가져올수 있다
+    .populate('writer')
+    .exec((err, productInfo) => {
+      if (err) return res.status(400).json({ success: false, err })
+      return res.status(200).json({ success: true, productInfo })
+    })
+})
+```
+
+---
