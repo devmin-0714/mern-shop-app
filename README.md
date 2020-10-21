@@ -208,9 +208,9 @@ import React from 'react'
 import Dropzone from 'react-dropzone'
 import { Icon } from 'antd'
 
-// 1. 프론트엔드에서 파일전달
+// 1. 프론트에서 백엔드로 axios를 이용해 파일 전달
 function FileUpload() {
-
+      ...
     }
 
     return (
@@ -232,18 +232,16 @@ function FileUpload() {
         </div>
     )
 }
-
-export default FileUpload
 ```
 
 - **onDrop Function 만들기**
 
   - `npm install multer --save`
     - `서버`에 다운
-  - 1. 프론트에서 백엔드로 `axios`를 이용해 `파일 전달`
-  - 2. 백엔드에서 `multer`를 이용해 `파일 저장`
-  - 3. 백엔드에서 프론트로 `파일저장 정보 전달`
-  - 4. `response.data` 정보를 넣을 폼 생성
+  - `1.` 프론트에서 백엔드로 `axios`를 이용해 `파일 전달`
+  - `2.` 백엔드에서 `multer`를 이용해 `파일 저장`
+  - `3.` 백엔드에서 프론트로 `파일저장 정보 전달`
+  - `4.` `response.data` 정보를 넣을 폼 생성
 
 ```js
 // components/utils/FileUpload.js
@@ -253,7 +251,7 @@ import { Icon } from 'antd'
 import axios from 'axios'
 
 
-// 1. 프론트엔드에서 파일전달
+// 1. 프론트에서 백엔드로 axios를 이용해 파일 전달
 function FileUpload() {
 
     const dropHandler = (files) => {
@@ -261,7 +259,6 @@ function FileUpload() {
         // 1. 이미지를 AJAX로 업로드할 경우 폼 전송이 필요
         let formData = new FormData()
 
-        // 1.
         const config = {
             header: { 'content-type': 'multipart/form-data'}
         }
@@ -273,7 +270,6 @@ function FileUpload() {
             .then(response => {
                 if (response.data.success) {
                     console.log(response.data)
-)
                 } else {
                     alert('파일을 저장하는데 실패했습니다.')
                 }
@@ -284,8 +280,6 @@ function FileUpload() {
         ...
     )
 }
-
-export default FileUpload
 ```
 
 - **multer를 이용하여 이미지 저장**
@@ -350,21 +344,17 @@ function FileUpload() {
 
     // 4. response.data 정보를 넣을 폼 생성
     const [Images, setImages] = useState([])
-
     ...
-
     // 4. 백엔드에 최종정보(response.data) 전달하기위해 저장
-    setImages([...Images, response.data.filePath]
+    setImages([...Images, response.data.filePath])
 
     return (
-
         ...
-
             {/* 4. response.data 정보를 넣을 폼 생성*/}
             <div style={{ display: 'flex', width: '350px', height: '240px', overflowX: 'scroll' }}>
 
                 {Images.map((image, index) => (
-                    <div key={index}>
+                    <div onClick={() => deleteHandler(image)} key={index}>
                         <img style={{ minWidth: '300px', width: '300px', height: '240px' }}
                             src={`http://localhost:5000/${image}`}
                         />
@@ -377,8 +367,6 @@ function FileUpload() {
 
     )
 }
-
-export default FileUpload
 ```
 
 ---
@@ -392,7 +380,6 @@ export default FileUpload
 function FileUpload() {
 
   const deleteHandler = (image) => {
-
         const currentIndex = Images.indexOf(image)
         let newImages = [...Images]
         // splice : currentIndex부터 1개의 아이템을 삭제
@@ -421,7 +408,7 @@ function FileUpload() {
 
 ```js
 // UploadProductPage.js
-function UploadProductPage(props) {
+function UploadProductPage() {
 
   const [Images, setImages] = useState([])
 
@@ -432,7 +419,7 @@ function UploadProductPage(props) {
   return(
 
     {/* DropZone */}
-            <FileUpload refreshFunction={updateImages}/>
+    <FileUpload refreshFunction={updateImages}/>
 
   )
 }
@@ -525,48 +512,47 @@ module.exports = { Product }
 import axios from 'axios'
 
 function UploadProductPage(props) {
-
   const submitHandler = (event) => {
-        event.preventDefault()
+    event.preventDefault()
 
-        // 모든 항목을 채우지 않으면 alert를 띄운다
-        if (!Title || !Description || !Price || !Continent || Images.length === 0) {
-            return alert(" 모든 값을 넣어주셔야 합니다.")
-        }
+    // 모든 항목을 채우지 않으면 alert를 띄운다
+    if (!Title || !Description || !Price || !Continent || Images.length === 0) {
+      return alert(' 모든 값을 넣어주셔야 합니다.')
+    }
 
-        // 모든 정보를 서버로 보낸다
+    // 모든 정보를 서버로 보낸다
 
-        const body = {
-            // UploadProductPage.js는 auth.js의 자식컴포넌트이다.
-            // <SpecificComponent {...props} user={user} />
-            //로그인 된 사람의 ID
-            writer: props.user.userData._id,
-            title: Title,
-            description: Description,
-            price: Price,
-            images: Images,
-            continents: Continent
-        }
+    const body = {
+      // UploadProductPage.js는 auth.js의 자식컴포넌트이다.
+      // <SpecificComponent {...props} user={user} />
+      //로그인 된 사람의 ID
+      writer: props.user.userData._id,
+      title: Title,
+      description: Description,
+      price: Price,
+      images: Images,
+      continents: Continent,
+    }
 
-        axios.post('/api/product', body)
-            .then(response => {
-                if (response.data.success) {
-                    alert('상품 업로드에 성공 했습니다.')
-                    props.history.push('/')
-                } else {
-                    alert('상품 업로드에 실패 했습니다.')
-                }
-            })
+    axios.post('/api/product', body).then((response) => {
+      if (response.data.success) {
+        alert('상품 업로드에 성공 했습니다.')
+        props.history.push('/')
+      } else {
+        alert('상품 업로드에 실패 했습니다.')
+      }
+    })
   }
-  return (
 
+  return (
+    // UploadProductPage.js
     <Form onSubmit={submitHandler}>
       ...
-    <Button type="submit">
+      <Button type="submit" onClick={submitHandler}>
         확인
-    </Button>
+      </Button>
+    </Form>
   )
-
 }
 ```
 

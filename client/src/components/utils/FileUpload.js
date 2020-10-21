@@ -4,7 +4,7 @@ import { Icon } from 'antd'
 import axios from 'axios'
 
 
-// 1. 프론트엔드에서 파일전달
+// 1. 프론트에서 백엔드로 axios를 이용해 파일 전달
 function FileUpload(props) {
 
     // 4. response.data 정보를 넣을 폼 생성
@@ -21,7 +21,7 @@ function FileUpload(props) {
         // 1. append를 통해 키-값 형식으로 추가
         formData.append("file", files[0])
 
-        // 1.
+        // 1. axois를 통해 파일 전달
         axios.post('/api/product/image', formData, config)
             .then(response => {
                 if (response.data.success) {
@@ -32,7 +32,6 @@ function FileUpload(props) {
                     alert('파일을 저장하는데 실패했습니다.')
                 }
             })
-
     }
 
     const deleteHandler = (image) => {

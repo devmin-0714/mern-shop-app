@@ -110,7 +110,7 @@ function UploadProductPage(props) {
             </select>
             <br />
             <br />
-            <Button type="submit">
+            <Button type="submit" onClick={submitHandler}>
                 확인
             </Button>
         </Form>
