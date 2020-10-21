@@ -688,3 +688,62 @@ function LandingPage() {
 
 export default LandingPage
 ```
+
+---
+
+## 2-3. 이미지 슬라이더 만들기
+
+```js
+// LandingPage.js
+import Meta from 'antd/lib/card/Meta'
+import ImageSlider from '../../utils/ImageSlider'
+
+function LandingPage() {
+
+  const renderCards = Products.map((product, index) => {
+
+        return <Col lg={6} md={8} xs={24} key={index}>
+            <Card
+                cover={<ImageSlider images={product.images} />}
+            >
+                <Meta
+                    title={product.title}
+                    description={`$${product.price}`}
+                />
+            </Card>
+        </Col>
+    })
+
+  return (
+
+    {/* Cards*/}
+    <Row gutter={[16, 16]}>
+        {renderCards}
+    </Row>
+
+  )
+}
+
+// components/utils/ImageSlider.js
+import React from 'react'
+import { Carousel } from 'antd'
+
+function ImageSlider(props) {
+    return (
+        <div>
+            <Carousel autoplay>
+                {props.images.map((image, index) => (
+                    <div key={index}>
+                        <img style={{ width: '100%', maxHeight: '150px' }}
+                            src={`http://localhost:5000/${image}`} />
+                    </div>
+                ))}
+            </Carousel>
+        </div>
+    )
+}
+
+export default ImageSlider
+```
+
+---
