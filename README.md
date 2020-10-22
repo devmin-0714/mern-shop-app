@@ -1217,3 +1217,154 @@ router.post('/products', (req, res) => {
 ```
 
 ---
+
+## 2-11. 검색 기능 만들기
+
+- **SearchFeature Component 만들기**
+- **Search 기능을 위한 UI 만들기**
+- **onChange Function 만들기**
+- **search Data를 부모 컴포넌트에 업데이트하기**
+
+- [Input, Search](https://ant.design/components/input/)
+
+```js
+// LandingPage.js
+import SearchFeature from './Sections/SearchFeature'
+
+function LandingPage() {
+
+  const [SearchTerm, setSearchTerm] = useState('')
+
+  const updateSearchTerm = (newSearchTerm) => {
+        setSearchTerm(newSearchTerm)
+    }
+
+  return (
+
+    {/* Search */}
+    <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '1rem auto' }}>
+      <SearchFeature
+        refreshFunction={updateSearchTerm}
+      />
+    </div>
+
+  )
+}
+
+// LandingPage/Sections/SearchFeature.js
+import React, { useState } from 'react'
+import { Input } from 'antd';
+
+const { Search } = Input
+
+function SearchFeature(props) {
+
+    const [SearchTerm, setSearchTerm] = useState('')
+
+    const searchHandler = (event) => {
+        setSearchTerm(event.currentTarget.value)
+        props.refreshFunction(event.currentTarget.value)
+    }
+
+    return (
+        <div>
+            <Search
+                placeholder="input search text"
+                onChange={searchHandler}
+                style={{ width: 200 }}
+                value={SearchTerm}
+            />
+        </div>
+    )
+}
+
+export default SearchFeature
+```
+
+- **검색 값을 이용한 getProduct Function을 작동시키기**
+
+```js
+// LandingPage.js
+function LandingPage() {
+
+  const updateSearchTerm = (newSearchTerm) => {
+
+        let body = {
+            skip: 0,
+            limit: Limit,
+            filters: Filters,
+            searchTerm: newSearchTerm
+        }
+
+        setSkip(0)
+        setSearchTerm(newSearchTerm)
+        getProducts(body)
+    }
+
+  return (
+    ...
+  )
+}
+```
+
+- **Search 기능을 위해서 getProduct Route 수정하기**
+  - [\$text](https://docs.mongodb.com/manual/reference/operator/query/text/)
+
+```js
+// server/routes/product.js
+router.post('/products', (req, res) => {
+  // req.body.searchTerm : "Mexico"
+  let term = req.body.searchTerm
+  if (term) {
+    Product.find(findArgs)
+      .find({ $text: { $search: term } })
+      // populate : writer의 모든정보를 가져올수 있다
+      .populate('writer')
+      .skip(skip)
+      .limit(limit)
+      .exec((err, productInfo) => {
+        if (err) return res.status(400).json({ success: false, err })
+        return res.status(200).json({
+          success: true,
+          productInfo,
+          postSize: productInfo.length,
+        })
+      })
+  } else {
+    Product.find(findArgs)
+      // populate : writer의 모든정보를 가져올수 있다
+      .populate('writer')
+      .skip(skip)
+      .limit(limit)
+      .exec((err, productInfo) => {
+        if (err) return res.status(400).json({ success: false, err })
+        return res.status(200).json({
+          success: true,
+          productInfo,
+          postSize: productInfo.length,
+        })
+      })
+  }
+})
+```
+
+- **Search 기능을 가능하게 하기 위해서 Product Model에 무엇을 추가 해주기**
+  - [Control Search Results with Weights](https://docs.mongodb.com/manual/tutorial/control-results-of-text-search/)
+
+```js
+// server/models/Product.js
+const productSchema = mongoose.Schema({
+    ...
+
+productSchema.index({
+    title: 'text',
+    description: 'text'
+}, {
+    weights:{
+        title: 5,
+        description: 1
+    }
+})
+```
+
+---
