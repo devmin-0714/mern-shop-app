@@ -843,3 +843,192 @@ router.post('/products', (req, res) => {
 ```
 
 ---
+
+## 2-6. 체크 박스 필터 만들기
+
+- **CheckBox 리스트데이터들을 만들기**
+
+```js
+// LandingPage/Sections/Data.js
+const continents = [
+  {
+    _id: 1,
+    name: 'Africa',
+  },
+  {
+    _id: 2,
+    name: 'Europe',
+  },
+  {
+    _id: 3,
+    name: 'Asia',
+  },
+  {
+    _id: 4,
+    name: 'North America',
+  },
+  {
+    _id: 5,
+    name: 'South America',
+  },
+  {
+    _id: 6,
+    name: 'Australia',
+  },
+  {
+    _id: 7,
+    name: 'Antarctica',
+  },
+]
+
+export { continents }
+```
+
+- **CheckBox를 위한 UI 만들기**
+  - [Collapse](https://ant.design/components/collapse/)
+  - [Checkbox](https://ant.design/components/checkbox/)
+
+```js
+// LandingPage.js
+import { continents } from './Sections/Datas'
+import CheckBox from './Sections/CheckBox'
+
+function LandingPage() {
+  ...
+  return (
+
+    {/* CheckBox */}
+    <CheckBox list={continents} />
+
+  )
+}
+
+// LandingPage/sections/CheckBox.js
+import React from 'react'
+import { Collapse, Checkbox } from 'antd'
+
+const { Panel } = Collapse
+
+function CheckBox(props) {
+
+
+    const renderCheckBoxLists = () => props.list && props.list.map((value, index) => (
+        <React.Fragment key={index}>
+            <Checkbox onChange />
+                <span>{value.name}</span>
+        </React.Fragment>
+    ))
+
+
+    return (
+        <div>
+            <Collapse defaultActiveKey={['1']}>
+                <Panel header="Continents" key="1">
+
+                    {renderCheckBoxLists()}
+
+                </Panel>
+            </Collapse>
+        </div>
+    )
+}
+
+export default CheckBox
+```
+
+- **onChange Function 만들기**
+
+```js
+// LandingPage/sections/CheckBox.js
+function CheckBox(props) {
+
+    const [Checked, setChecked] = useState([])
+
+    const handleToggle = (value) => {
+
+        // 체크박스 누른 것의 Index를 구하고
+        const currentIndex = Checked.indexOf(value)
+
+        // 전체 Checked된 State에서 현재 누른 Checkbox가 이미 있다면
+        const newChecked = [...Checked]
+
+        // (value 값이 없다면 value값을 넣어준다)
+        if (currentIndex === -1) {
+            newChecked.push(value)
+
+        // 빼주고
+        } else {
+            newChecked.splice(currentIndex, 1)
+        }
+
+        // State에 넣어준다
+        setChecked(newChecked)
+
+        // 부모 컴포넌트에 전달
+        props.handleFilters(newChecked)
+    }
+
+    const renderCheckBoxLists = () => props.list && props.list.map((value, index) => (
+        <React.Fragment key={index}>
+            <Checkbox onChange={() => handleToggle(value._id)} checked={Checked.indexOf(value._id) === -1 ? false : true} />
+                <span>{value.name}</span>
+        </React.Fragment>
+    ))
+
+    return (
+      ...
+    )
+}
+
+```
+
+- **Chcked State를 부모 컴포넌트로 업데이트하기**
+
+```js
+// LandingPage.js
+function LandingPage() {
+
+  const [Filters, setFilters] = useState({
+        continents: [],
+        price: []
+    })
+
+  const handleFilters = (filters, category) => {
+      const newFilters = {...Filters}
+      newFilters[category] = filters
+      showFilteredResults(newFilters)
+  }
+
+  return (
+
+    {/* CheckBox */}
+    <CheckBox list={continents} handleFilters={filters => handleFilters(filters, "continents")}/>
+
+  )
+}
+
+// server/routes/product.js
+router.post('/products', (req, res) => {
+
+  // product collection에 들어있는 모든 상품 정보를 가져오기
+
+  // limit과 skip을 이용해 제한된 수의 product 가져오기
+  let limit = req.body.limit ? parseInt(req.body.limit) : 20
+  let skip = req.body.skip ? parseInt(req.body.skip) : 0
+
+  let findArgs = {}
+
+  // req.body.filters -> continents: "[1, 2, 3..]" (LandingPage.js)
+  // key -> "continents": [1, 2, 3..]
+  for (let key in req.body.filters) {
+    if (req.body.filters[key].length > 0) {
+      findArgs[key] = req.body.filters[key]
+    }
+  }
+
+  Product.find(findArgs)
+    ...
+})
+```
+
+---
