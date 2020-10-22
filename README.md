@@ -849,7 +849,7 @@ router.post('/products', (req, res) => {
 - **CheckBox 리스트데이터들을 만들기**
 
 ```js
-// LandingPage/Sections/Data.js
+// LandingPage/Sections/Datas.js
 const continents = [
   {
     _id: 1,
@@ -1028,6 +1028,191 @@ router.post('/products', (req, res) => {
 
   Product.find(findArgs)
     ...
+})
+```
+
+---
+
+## 2-9. 라디오 박스 필터 만들기
+
+- **RadioBox 리스트 데이터들 만들기**
+
+  - [Radio](https://ant.design/components/radio/)
+
+- **Radioobx를 위한 UI 만들기**
+- **onChange Function 만들기**
+- **Checked State를 부모 컴포넌트로 업데이트 하기**
+  - 같은 코드
+    - `list.map((value) => <Radio key={value._id}></Radio>)`
+    - `list.map((value, index) => <Radio key={index}></Radio>)`
+
+```js
+// LandingPage/Sections/Datas.js
+const price = [
+  {
+    _id: 0,
+    name: 'Any',
+    array: [],
+  },
+  {
+    _id: 1,
+    name: '$0 to $249',
+    array: [0, 249],
+  },
+  {
+    _id: 2,
+    name: '$250 to $499',
+    array: [250, 499],
+  },
+  {
+    _id: 3,
+    name: '$500 to $749',
+    array: [500, 749],
+  },
+  {
+    _id: 4,
+    name: '$750 to $999',
+    array: [750, 999],
+  },
+  {
+    _id: 5,
+    name: 'More than $1000',
+    array: [1000, 1500000],
+  },
+]
+
+export { price }
+
+// LandingPage.js
+import { price } from './Sections/Datas'
+import Radiobox from './Sections/RadioBox'
+
+function LandingPage() {
+  ...
+  return (
+
+    {/* Filter */}
+
+    <Row gutter={[16, 16]}>
+        <Col lg={12} xs={24}>
+            {/* CheckBox */}
+            <Checkbox list={continents}
+            handleFilters={filters => handleFilters(filters, "continents")} />
+        </Col>
+        <Col lg={12} xs={24}>
+            {/* RadioBox */}
+            <Radiobox list={price}
+            handleFilters={filters => handleFilters(filters, "price")} />
+        </Col>
+    </Row>
+
+  )
+
+}
+
+// LandingPage/Sections/RadioBox.js
+import React, { useState } from 'react'
+import { Collapse, Radio } from 'antd'
+
+const { Panel } = Collapse
+
+function RadioBox(props) {
+
+    // Value : price._id (Datas.js)
+    const [Value, setValue] = useState(0)
+
+    const renderRadioBox = () => (
+        props.list && props.list.map(value => (
+            <Radio key={value._id} value={value._id}> {value.name} </Radio>
+        ))
+    )
+
+    const handleChange = (event) => {
+        setValue(event.target.value)
+        props.handleFilters(event.target.value)
+    }
+
+    return (
+        <div>
+            <Collapse defaultActiveKey={['0']}>
+                <Panel header="Price" key="1">
+
+                    <Radio.Group onChange={handleChange} value={Value}>
+                        {renderRadioBox()}
+                    </Radio.Group>
+
+                </Panel>
+            </Collapse>
+        </div>
+    )
+}
+
+export default RadioBox
+```
+
+- **handleFilter Function 만들기**
+- **handleFilter를 위한 handlePrice function 만들기**
+- **필터 기능을 위한 getProduct Route 수정하기**
+
+```js
+// LandingPage.js
+function LandingPage() {
+
+  const handlePrice = (value) => {
+        const data = price
+        let array = []
+
+        for (let key in data) {
+            if (data[key]._id === parseInt(value, 10)) {
+                array = data[key].array
+            }
+        }
+        return array
+    }
+
+    const handleFilters = (filters, category) => {
+        const newFilters = {...Filters}
+        newFilters[category] = filters
+
+        if (category === "price") {
+            let priceValues = handlePrice(filters)
+            newFilters[category] = priceValues
+        }
+        showFilteredResults(newFilters)
+        setFilters(newFilters)
+    }
+
+  return (
+    ...
+  )
+}
+
+// server/routes/product.js
+router.post('/products', (req, res) => {
+
+  ...
+
+  // req.body.filters -> continents: "[1, 2, 3..]" (LandingPage.js)
+  // key -> "continents": [1, 2, 3..]
+  for (let key in req.body.filters) {
+    if (req.body.filters[key].length > 0) {
+
+      if (key === "price") {
+        findArgs[key] = {
+          //Greater than equal
+          $gte: req.body.filters[key][0],
+          //Less than equal
+          $lte: req.body.filters[key][1]
+        }
+      } else {
+        findArgs[key] = req.body.filters[key]
+      }
+
+    }
+  }
+
+  ...
+
 })
 ```
 
