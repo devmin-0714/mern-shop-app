@@ -33,7 +33,7 @@ module.exports = {
 - **비어 있는 업로드 페이지 생성**
 
 ```js
-// UploadProductPage.js
+⭐// UploadProductPage.js
 import React from 'react'
 
 function UploadProductPage() {
@@ -46,7 +46,7 @@ export default UploadProductPage
 - **업로드 페이지 Route 만들기**
 
 ```js
-// App.js
+⭐// App.js
 import UploadProductPage from './views/UploadProductPage/UploadProductPage'
 ;<Route
   exact
@@ -58,7 +58,7 @@ import UploadProductPage from './views/UploadProductPage/UploadProductPage'
 - **업로드 페이지 탭 만들기**
 
 ```js
-// RightMenu.js
+⭐// RightMenu.js
 // 로그인이 안된 상태
   if (user.userData && !user.userData.isAuth) {
     return (
@@ -94,7 +94,7 @@ import UploadProductPage from './views/UploadProductPage/UploadProductPage'
 - **Drop Zone을 제외한 Form과<br>모든 INPUT을 위한 onChange Function 만들기**
 
 ```js
-// UploadProductPage.js
+⭐// UploadProductPage.js
 import React, { useState } from 'react'
 import { Button, Form, Input } from 'antd'
 
@@ -190,7 +190,7 @@ export default UploadProductPage
   - [react-dropzone](https://www.npmjs.com/package/react-dropzone)
 
 ```js
-// UploadProductPage.js
+⭐// UploadProductPage.js
 import FileUpload from '../../utils/FileUpload'
 
 function UploadProductPage() {
@@ -203,7 +203,7 @@ function UploadProductPage() {
   )
 }
 
-// components/utils/FileUpload.js
+⭐// components/utils/FileUpload.js
 import React from 'react'
 import Dropzone from 'react-dropzone'
 import { Icon } from 'antd'
@@ -244,7 +244,7 @@ function FileUpload() {
   - `4.` `response.data` 정보를 넣을 폼 생성
 
 ```js
-// components/utils/FileUpload.js
+⭐// components/utils/FileUpload.js
 import React, { useState } from 'react'
 import Dropzone from 'react-dropzone'
 import { Icon } from 'antd'
@@ -286,7 +286,7 @@ function FileUpload() {
   - [multer npm](https://www.npmjs.com/package/multer)
 
 ```js
-// server/index.js
+⭐// server/index.js
 // 2. Route 설정
 app.use('/api/product', require('./routes/product'))
 
@@ -334,7 +334,7 @@ module.exports = router
 - **response.data 정보를 넣을 폼 생성**
 
 ```js
-// components/utils/FileUpload.js
+⭐// components/utils/FileUpload.js
 import React, { useState } from 'react'
 import Dropzone from 'react-dropzone'
 import { Icon } from 'antd'
@@ -376,7 +376,7 @@ function FileUpload() {
 - **onDelete Function 만들기**
 
 ```js
-// components/utils/FileUpload.js
+⭐// components/utils/FileUpload.js
 function FileUpload() {
 
   const deleteHandler = (image) => {
@@ -407,7 +407,7 @@ function FileUpload() {
 - `FileUpload.js`(자식)에 있는 `Image`정보를<br>`UploadProductPage.js`(부모)에 보내줘야<br>`Submit Button`을 실행했을 때 `Server`로 전달된다.
 
 ```js
-// UploadProductPage.js
+⭐// UploadProductPage.js
 function UploadProductPage() {
 
   const [Images, setImages] = useState([])
@@ -424,7 +424,7 @@ function UploadProductPage() {
   )
 }
 
-// components/utils/FileUpload.js
+⭐// components/utils/FileUpload.js
 function FileUpload(props) {
 
   const dropHandler = (files) => {
@@ -458,7 +458,7 @@ function FileUpload(props) {
 - **Product Model 만들기**
 
 ```js
-// server/models/Product.js
+⭐// server/models/Product.js
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
@@ -508,7 +508,7 @@ module.exports = { Product }
 - **onSubmit Function 만들기, 모든 정보를 서버로 보내기**
 
 ```js
-// UploadProductPage.js
+⭐// UploadProductPage.js
 import axios from 'axios'
 
 function UploadProductPage(props) {
@@ -545,7 +545,6 @@ function UploadProductPage(props) {
   }
 
   return (
-    // UploadProductPage.js
     <Form onSubmit={submitHandler}>
       ...
       <Button type="submit" onClick={submitHandler}>
@@ -559,10 +558,10 @@ function UploadProductPage(props) {
 - **보내진 정보를 몽고DB에 저장하기**
 
 ```js
-// server/index.js
+⭐// server/index.js
 app.use('/api/product', require('./routes/product'))
 
-// server/routes/product.js
+⭐// server/routes/product.js
 const { Product } = require('../models/Product')
 
 router.post('/', (req, res) => {
@@ -585,7 +584,7 @@ router.post('/', (req, res) => {
 - **몽고 DB에 저장되어 있는 데이터들을 가져오기**
 
 ```js
-// LandingPage.js
+⭐// LandingPage.js
 import React, { useEffect } from 'react'
 import axios from 'axios'
 
@@ -605,7 +604,7 @@ function LandingPage() {
 
 export default LandingPage
 
-// server/routes/product.js
+⭐// server/routes/product.js
 const { Product } = require('../models/Product')
 
 router.post('/products', (req, res) => {
@@ -627,7 +626,7 @@ router.post('/products', (req, res) => {
 - **랜딩 페이지 UI 만들기**
 
 ```js
-// LandingPage.js
+⭐// LandingPage.js
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Icon, Col, Card, Row } from 'antd'
@@ -691,10 +690,10 @@ export default LandingPage
 
 ---
 
-## 2-3. 이미지 슬라이더 만들기
+### 2-3. 이미지 슬라이더 만들기
 
 ```js
-// LandingPage.js
+⭐// LandingPage.js
 import Meta from 'antd/lib/card/Meta'
 import ImageSlider from '../../utils/ImageSlider'
 
@@ -724,7 +723,7 @@ function LandingPage() {
   )
 }
 
-// components/utils/ImageSlider.js
+⭐// components/utils/ImageSlider.js
 import React from 'react'
 import { Carousel } from 'antd'
 
@@ -748,14 +747,14 @@ export default ImageSlider
 
 ---
 
-## 2-4. 더보기 버튼 만들기
+### 2-4. 더보기 버튼 만들기
 
 - **더보기 버튼을 위한 onClick Function 만들기<br>MongoDB Method인 SKIP과 LIMIT을 위한 STATE 만들기**
   - `LIMIT` : 처음 데이터를 가져올때와 더보기 버튼을 눌러서 가져올때<br>얼마나 많은 데이터를 한번에 가져오는지
   - `SKIP` : 어디서부터 데이터를 가져 오는지에 대한 위치<br>처음에는 0부터 시작, LIMIT이 6이라면 다음 번에는 `2rd Skip = 0 + 6`
 
 ```js
-// LandingPage.js
+⭐// LandingPage.js
 function LandingPage() {
 
   const [Skip, setSkip] = useState(0)
@@ -817,7 +816,7 @@ function LandingPage() {
   )
 }
 
-// server/routes/product.js
+⭐// server/routes/product.js
 router.post('/products', (req, res) => {
 
   // product collection에 들어있는 모든 상품 정보를 가져오기
@@ -844,12 +843,12 @@ router.post('/products', (req, res) => {
 
 ---
 
-## 2-6. 체크 박스 필터 만들기
+### 2-6. 체크 박스 필터 만들기
 
 - **CheckBox 리스트데이터들을 만들기**
 
 ```js
-// LandingPage/Sections/Datas.js
+⭐// LandingPage/Sections/Datas.js
 const continents = [
   {
     _id: 1,
@@ -889,7 +888,7 @@ export { continents }
   - [Checkbox](https://ant.design/components/checkbox/)
 
 ```js
-// LandingPage.js
+⭐// LandingPage.js
 import { continents } from './Sections/Datas'
 import CheckBox from './Sections/CheckBox'
 
@@ -903,7 +902,7 @@ function LandingPage() {
   )
 }
 
-// LandingPage/sections/CheckBox.js
+⭐// LandingPage/sections/CheckBox.js
 import React from 'react'
 import { Collapse, Checkbox } from 'antd'
 
@@ -922,7 +921,7 @@ function CheckBox(props) {
 
     return (
         <div>
-            <Collapse defaultActiveKey={['1']}>
+            <Collapse defaultActiveKey={['0']}>
                 <Panel header="Continents" key="1">
 
                     {renderCheckBoxLists()}
@@ -939,7 +938,7 @@ export default CheckBox
 - **onChange Function 만들기**
 
 ```js
-// LandingPage/sections/CheckBox.js
+⭐// LandingPage/sections/CheckBox.js
 function CheckBox(props) {
 
     const [Checked, setChecked] = useState([])
@@ -985,7 +984,7 @@ function CheckBox(props) {
 - **Chcked State를 부모 컴포넌트로 업데이트하기**
 
 ```js
-// LandingPage.js
+⭐// LandingPage.js
 function LandingPage() {
 
   const [Filters, setFilters] = useState({
@@ -1007,7 +1006,7 @@ function LandingPage() {
   )
 }
 
-// server/routes/product.js
+⭐// server/routes/product.js
 router.post('/products', (req, res) => {
 
   // product collection에 들어있는 모든 상품 정보를 가져오기
@@ -1033,7 +1032,7 @@ router.post('/products', (req, res) => {
 
 ---
 
-## 2-9. 라디오 박스 필터 만들기
+### 2-9. 라디오 박스 필터 만들기
 
 - **RadioBox 리스트 데이터들 만들기**
 
@@ -1047,7 +1046,7 @@ router.post('/products', (req, res) => {
     - `list.map((value, index) => <Radio key={index}></Radio>)`
 
 ```js
-// LandingPage/Sections/Datas.js
+⭐// LandingPage/Sections/Datas.js
 const price = [
   {
     _id: 0,
@@ -1083,7 +1082,7 @@ const price = [
 
 export { price }
 
-// LandingPage.js
+⭐// LandingPage.js
 import { price } from './Sections/Datas'
 import Radiobox from './Sections/RadioBox'
 
@@ -1110,7 +1109,7 @@ function LandingPage() {
 
 }
 
-// LandingPage/Sections/RadioBox.js
+⭐// LandingPage/Sections/RadioBox.js
 import React, { useState } from 'react'
 import { Collapse, Radio } from 'antd'
 
@@ -1155,7 +1154,7 @@ export default RadioBox
 - **필터 기능을 위한 getProduct Route 수정하기**
 
 ```js
-// LandingPage.js
+⭐// LandingPage.js
 function LandingPage() {
 
   const handlePrice = (value) => {
@@ -1187,7 +1186,7 @@ function LandingPage() {
   )
 }
 
-// server/routes/product.js
+⭐// server/routes/product.js
 router.post('/products', (req, res) => {
 
   ...
@@ -1218,7 +1217,7 @@ router.post('/products', (req, res) => {
 
 ---
 
-## 2-11. 검색 기능 만들기
+### 2-11. 검색 기능 만들기
 
 - **SearchFeature Component 만들기**
 - **Search 기능을 위한 UI 만들기**
@@ -1228,7 +1227,7 @@ router.post('/products', (req, res) => {
 - [Input, Search](https://ant.design/components/input/)
 
 ```js
-// LandingPage.js
+⭐// LandingPage.js
 import SearchFeature from './Sections/SearchFeature'
 
 function LandingPage() {
@@ -1251,7 +1250,7 @@ function LandingPage() {
   )
 }
 
-// LandingPage/Sections/SearchFeature.js
+⭐// LandingPage/Sections/SearchFeature.js
 import React, { useState } from 'react'
 import { Input } from 'antd';
 
@@ -1284,7 +1283,7 @@ export default SearchFeature
 - **검색 값을 이용한 getProduct Function을 작동시키기**
 
 ```js
-// LandingPage.js
+⭐// LandingPage.js
 function LandingPage() {
 
   const updateSearchTerm = (newSearchTerm) => {
@@ -1311,7 +1310,7 @@ function LandingPage() {
   - [\$text](https://docs.mongodb.com/manual/reference/operator/query/text/)
 
 ```js
-// server/routes/product.js
+⭐// server/routes/product.js
 router.post('/products', (req, res) => {
   // req.body.searchTerm : "Mexico"
   let term = req.body.searchTerm
@@ -1352,7 +1351,7 @@ router.post('/products', (req, res) => {
   - [Control Search Results with Weights](https://docs.mongodb.com/manual/tutorial/control-results-of-text-search/)
 
 ```js
-// server/models/Product.js
+⭐// server/models/Product.js
 const productSchema = mongoose.Schema({
     ...
 
@@ -1368,3 +1367,102 @@ productSchema.index({
 ```
 
 ---
+
+## 3. 상세 보기 페이지 만들기
+
+### 3-1. 상품의 상세정보를 데이터베이스에서 가져오기
+
+- **빈 상품 상세 페이지 만들기**
+- **Product detail page를 위한 Route 만들기**
+- **product 정보를 DB에서 가져오기**
+
+```js
+// LandingPage.js
+function LandingPage() {
+
+  const renderCards = Products.map((product, index) => {
+
+    return <Col lg={6} md={8} xs={24} key={index}>
+        <Card
+            cover={<a href={`/product/${product._id}`}><ImageSlider images={product.images} /></a>}
+        >
+            <Meta
+                title={product.title}
+                description={`$${product.price}`}
+            />
+        </Card>
+    </Col>
+  })
+
+  return (
+    ...
+  )
+}
+
+// App.js
+import DetailProductPage from './views/DetailProductPage/DetailProductPage'
+
+function App() {
+  return (
+    <Suspense fallback={(<div>Loading...</div>)}>
+      <NavBar />
+      <div style={{ paddingTop: '69px', minHeight: 'calc(100vh - 80px)' }}>
+        <Switch>
+          <Route exact path="/product/:productId" component={Auth(DetailProductPage, null)} />
+        </Switch>
+      </div>
+      <Footer />
+    </Suspense>
+  );
+}
+
+// DetailProductPage.js
+import React, { useEffect } from 'react'
+import axios from 'axios'
+
+function DetailProductPage(props) {
+
+    const productId = props.match.params.productId
+
+    useEffect(() => {
+
+        axios.get(`/api/product/products_by_id?id=${productId}&type=single`)
+            .then(response => {
+                if (response.data.success) {
+                    console.log('response.data', response.data)
+                } else {
+                    alert('상세 정보 가져오기를 실패했습니다.')
+                }
+            })
+
+    }, [])
+
+
+
+    return (
+        <div>
+            DetailProductPage
+        </div>
+    )
+}
+
+export default DetailProductPage
+
+// server/routes/product.js
+router.get('/products_by_id', (req, res) => {
+
+  // query를 이용해서 가져올때는 req.query
+  let type = req.query.type
+  let productId = req.query.id
+
+  // productId를 이용해서 DB에서 productId와 같은 상품의 정보를 가져온다.
+  Product.find({ _id: productId })
+    .populate('writer')
+    .exec((err, product) => {
+      if (err) return res.status(400).send(err)
+      return res.status(200).send({ success: true, product})
+    })
+})
+```
+
+## 3-2. Product Image 컴포넌트 만들기
