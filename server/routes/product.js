@@ -109,7 +109,6 @@ router.post('/products', (req, res) => {
 
 })
 
-
 router.get('/products_by_id', (req, res) => {
 
   // query를 이용해서 가져올때는 req.query

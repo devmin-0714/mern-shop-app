@@ -1465,4 +1465,95 @@ router.get('/products_by_id', (req, res) => {
 })
 ```
 
-## 3-2. Product Image 컴포넌트 만들기
+### 3-2. Product Image 컴포넌트 만들기
+
+- **Product detail 페이지 UI 만들기**
+
+  - `ProductImage` Component
+    - `npm install react-image-gallery --save` (`Client` 경로)
+  - `ProductInfo` Component
+
+- **ProductImage 페이지 만들기**
+  - [react-image-gallery](https://www.npmjs.com/package/react-image-gallery)
+  - thumbnail 라이브러리 : [gm -npm](https://www.npmjs.com/package/gm)
+
+```js
+// DetailProductPage.js
+import ProductImage from './Sections/ProductImage'
+import ProductInfo from './Sections/ProductInfo'
+import { Row, Col } from 'antd'
+
+function DetailProductPage(props) {
+  const [Product, setProduct] = useState({})
+
+  useEffect(() => {
+    axios
+      .get(`/api/product/products_by_id?id=${productId}&type=single`)
+      .then((response) => {
+        if (response.data.success) {
+          console.log('response.data', response.data)
+          setProduct(response.data.product[0])
+        } else {
+          alert('상세 정보 가져오기를 실패했습니다.')
+        }
+      })
+  }, [])
+
+  return (
+    <div style={{ width: '100%', padding: '3rem 4rem'}}>
+        <div style= {{ display: 'flex', justifyContent: 'center' }}>
+            <h1>{Product.title}</h1>
+        </div>
+        <br />
+
+        <Row gutter={[16, 16]}>
+            <Col lg={12} sm={24}>
+                {/* ProductImage */}
+                <ProductImage detail={Product}/>
+            </Col>
+            <Col lg={12} sm={24}>
+                {/* ProductInfo */}
+                <ProductInfo detail={Product}/>
+            </Col>
+        </Row>
+    </div>
+    )
+  )
+}
+
+// index.css
+@import '~react-image-gallery/styles/css/image-gallery.css';
+
+// DetailProductPage/Sections/ProductImage.js
+import React, { useState, useEffect } from 'react'
+import ImageGallery from 'react-image-gallery'
+
+function ProductImage(props) {
+
+    const [Images, setImages] = useState([])
+
+    useEffect(() => {
+
+        if (props.detail.images && props.detail.images.length > 0) {
+            let images = []
+
+            props.detail.images.map(item => {
+                images.push({
+                    original: `http://localhost:5000/${item}`,
+                    thumbnail: `http://localhost:5000/${item}`
+                })
+            })
+            setImages(images)
+        }
+
+    }, [props.detail])
+
+    return (
+        <div>
+            <ImageGallery items={Images} />
+        </div>
+    )
+}
+
+export default ProductImage
+```
