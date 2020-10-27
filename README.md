@@ -1794,6 +1794,7 @@ function App() {
 }
 
 // RightMenu.js
+import { Menu, Icon, Badge } from 'antd'
 ...
 } else {
     return (
@@ -1929,4 +1930,103 @@ router.get('/products_by_id', (req, res) => {
           return res.status(200).json({ success: true, product })
       })
 })
+```
+
+### 4-4. 데이터베이스에서 가져온 상품 정보들을 화면에서 보여주기
+
+- **Cart page를 위한 UI 만들기**
+
+  - `UserCardBlock` Component
+
+- **데이터베이스에서 가져온 데이터를 브라우저에서 보여주기**
+
+```js
+// CartPage.js
+import UserCardBlock from './Sections/UserCardBlock'
+
+function CartPage(props) {
+    ...
+    return (
+        <div style={{ width: '85%', margin: '3rem auto' }}>
+            <h1>My Cart</h1>
+
+            <UserCardBlock products={props.user.cartDetail && props.user.cartDetail.product} />
+        </div>
+    )
+}
+
+// components/views/CartPage/Sections/UserCardBlock.js
+import React from 'react'
+import './UserCardBlock.css'
+
+function UserCardBlock(props) {
+
+    const renderCartImage = (images) => {
+        if (images.length > 0) {
+            let image = images[0]
+            return `http://localhost:5000/${image}`
+        }
+    }
+
+    const renderItems = () => (
+        props.products && props.products.map(product => (
+            <tr>
+                <td>
+                    <img style={{ width: '70px' }} alt="product"
+                        src={renderCartImage(product.images)} />
+                </td>
+                <td>
+                    {product.quantity} EA
+                </td>
+                <td>
+                    $ {product.price}
+                </td>
+                <td>
+                    <button>
+                        Remove
+                    </button>
+                </td>
+            </tr>
+        ))
+    )
+
+    return (
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Image</th>
+                        <th>Product Quantity</th>
+                        <th>Product Price</th>
+                        <th>Remove from Cart</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {renderItems()}
+                </tbody>
+            </table>
+        </div>
+    )
+}
+
+export default UserCardBlock
+
+// components/views/CartPage/Sections/UserCardBlock.css
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
 ```
