@@ -8,14 +8,14 @@
 
 - `boiler-plate` 클론
 
-- 서버와 클라이언트에서 `Dependencies` 다운받기
+- `클라이언트`와 `서버`에 `Dependencies` 다운받기
 
   - `npm install`
-  - `Server`은 Root경로, `Client`는 `client` 폴더경로
+  - `Server`은 **Root** 경로, `Client`는 **client폴더** 경로
 
 - `server/config/dev.js` 파일 설정
   - `MongoDB` 로그인
-  - 클러스터, 아이디와 비번 생성 후 `dev.js` 파일에 넣는다.
+  - 클러스터, 유저 아이디와 비밀번호 생성 후 `dev.js` 파일에 넣는다.
 
 ```js
 module.exports = {
@@ -48,7 +48,7 @@ export default UploadProductPage
 ```js
 ⭐// App.js
 import UploadProductPage from './views/UploadProductPage/UploadProductPage'
-;<Route
+<Route
   exact
   path="/product/Upload"
   component={Auth(UploadProductPage, true)}
@@ -59,7 +59,28 @@ import UploadProductPage from './views/UploadProductPage/UploadProductPage'
 
 ```js
 ⭐// RightMenu.js
-// 로그인이 안된 상태
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React from 'react';
+import { Menu } from 'antd'
+import axios from 'axios'
+import { USER_SERVER } from '../../../Config'
+import { withRouter } from 'react-router-dom'
+import { useSelector } from "react-redux"
+
+function RightMenu(props) {
+  const user = useSelector(state => state.user)
+
+  const logoutHandler = () => {
+    axios.get(`${USER_SERVER}/logout`).then(response => {
+      if (response.status === 200) {
+        props.history.push("/login")
+      } else {
+        alert('Log Out Failed')
+      }
+    })
+  }
+
+  // 로그인이 안된 상태
   if (user.userData && !user.userData.isAuth) {
     return (
       <Menu mode={props.mode}>
@@ -85,6 +106,8 @@ import UploadProductPage from './views/UploadProductPage/UploadProductPage'
     )
   }
 }
+
+export default withRouter(RightMenu)
 ```
 
 ---
@@ -160,7 +183,6 @@ function UploadProductPage() {
               {item.value}
             </option>
           ))}
-          <option></option>
         </select>
         <br />
         <br />
@@ -208,7 +230,6 @@ import React from 'react'
 import Dropzone from 'react-dropzone'
 import { Icon } from 'antd'
 
-// 1. 프론트에서 백엔드로 axios를 이용해 파일 전달
 function FileUpload() {
       ...
     }
@@ -236,12 +257,11 @@ function FileUpload() {
 
 - **onDrop Function 만들기**
 
-  - `npm install multer --save`
-    - `서버`에 다운
-  - `1.` 프론트에서 백엔드로 `axios`를 이용해 `파일 전달`
-  - `2.` 백엔드에서 `multer`를 이용해 `파일 저장`
-  - `3.` 백엔드에서 프론트로 `파일저장 정보 전달`
-  - `4.` `response.data` 정보를 넣을 폼 생성
+  - `npm install multer --save` (`서버`에 다운)
+    `1.` **클라이언트**에서 **서버**로 `axios`를 이용해 `파일 전달`
+    `2.` **서버**에서 `multer`를 이용해 `파일 저장`
+    `3.` **서버**에서 **클라이언트**로 `파일저장 정보 전달`
+    `4.` `response.data` 정보를 넣을 폼 생성
 
 ```js
 ⭐// components/utils/FileUpload.js
@@ -251,7 +271,7 @@ import { Icon } from 'antd'
 import axios from 'axios'
 
 
-// 1. 프론트에서 백엔드로 axios를 이용해 파일 전달
+// 1. 클라이언트에서 서버로 axios를 이용해 파일 전달
 function FileUpload() {
 
     const dropHandler = (files) => {
@@ -299,16 +319,18 @@ const multer = require('multer')
 //             Product
 //=================================
 
-// 2. 백엔드에서 multer를 이용해 파일 저장
+// 2. 서버에서 multer를 이용해 파일 저장
 var storage = multer.diskStorage({
-  // 2. destination : 어디에 파일이 저장되는지 -> uploads 폴더
+
+  // 2. destination: 어디에 파일이 저장되는지 -> uploads 폴더
   destination: function (req, file, cb) {
     cb(null, 'uploads/')
   },
-  // 2. filname : uploads라는 폴더에 파일을 저장할 때 어떤 이름으로 저장할지
+
+  // 2. filname: uploads라는 폴더에 파일을 저장할 때 어떤 이름으로 저장할지
   filename: function (req, file, cb) {
     cb(null, `${Date.now()}_${file.originalname}`)
-  },
+  }
 })
 
 var upload = multer({ storage: storage }).single('file')
@@ -319,7 +341,7 @@ router.post('/image', (req, res) => {
     if (err) {
       return req.json({ success: false, err })
     }
-    // 3. 백엔드에서 프론트로 파일저장 정보 전달
+    // 3. 서버에서 클라이언트로 파일저장 정보 전달
     return res.json({
       success: true,
       filePath: res.req.file.path,
@@ -335,11 +357,6 @@ module.exports = router
 
 ```js
 ⭐// components/utils/FileUpload.js
-import React, { useState } from 'react'
-import Dropzone from 'react-dropzone'
-import { Icon } from 'antd'
-import axios from 'axios'
-
 function FileUpload() {
 
     // 4. response.data 정보를 넣을 폼 생성
@@ -352,7 +369,6 @@ function FileUpload() {
         ...
             {/* 4. response.data 정보를 넣을 폼 생성*/}
             <div style={{ display: 'flex', width: '350px', height: '240px', overflowX: 'scroll' }}>
-
                 {Images.map((image, index) => (
                     <div onClick={() => deleteHandler(image)} key={index}>
                         <img style={{ minWidth: '300px', width: '300px', height: '240px' }}
@@ -360,11 +376,9 @@ function FileUpload() {
                         />
                     </div>
                ))}
-
             </div>
 
         </div>
-
     )
 }
 ```
@@ -388,7 +402,7 @@ function FileUpload() {
     }
 
   return (
-
+	...
     {Images.map((image, index) => (
         <div onClick={() => deleteHandler(image)} key={index}>
             <img style={{ minWidth: '300px', width: '300px', height: '240px' }}
@@ -404,7 +418,7 @@ function FileUpload() {
 
 ### 1-8. 이미지 State를 부모 컴포넌트로 업데이트하기
 
-- `FileUpload.js`(자식)에 있는 `Image`정보를<br>`UploadProductPage.js`(부모)에 보내줘야<br>`Submit Button`을 실행했을 때 `Server`로 전달된다.
+- `FileUpload.js`**(자식)**에 있는 `Image`정보를<br>`UploadProductPage.js`**(부모)**에 보내줘야<br>`Submit Button`을 실행했을 때 `Server`로 전달된다.
 
 ```js
 ⭐// UploadProductPage.js
@@ -417,10 +431,8 @@ function UploadProductPage() {
   }
 
   return(
-
     {/* DropZone */}
     <FileUpload refreshFunction={updateImages}/>
-
   )
 }
 
@@ -520,12 +532,12 @@ function UploadProductPage(props) {
       return alert(' 모든 값을 넣어주셔야 합니다.')
     }
 
-    // 모든 정보를 서버로 보낸다
+    // **모든 정보를 서버로 보낸다**
 
     const body = {
       // UploadProductPage.js는 auth.js의 자식컴포넌트이다.
       // <SpecificComponent {...props} user={user} />
-      //로그인 된 사람의 ID
+      // 로그인 된 사람의 ID
       writer: props.user.userData._id,
       title: Title,
       description: Description,
@@ -1188,9 +1200,7 @@ function LandingPage() {
 
 ⭐// server/routes/product.js
 router.post('/products', (req, res) => {
-
   ...
-
   // req.body.filters -> continents: "[1, 2, 3..]" (LandingPage.js)
   // key -> "continents": [1, 2, 3..]
   for (let key in req.body.filters) {
@@ -1380,8 +1390,7 @@ productSchema.index({
 // LandingPage.js
 function LandingPage() {
 
-  const renderCards = Products.map((product, index) => {
-
+  const renderCards = Products.map((product, index) =>
     return <Col lg={6} md={8} xs={24} key={index}>
         <Card
             cover={<a href={`/product/${product._id}`}><ImageSlider images={product.images} /></a>}
@@ -1413,7 +1422,7 @@ function App() {
       </div>
       <Footer />
     </Suspense>
-  );
+  )
 }
 
 // DetailProductPage.js
@@ -1436,8 +1445,6 @@ function DetailProductPage(props) {
             })
 
     }, [])
-
-
 
     return (
         <div>
@@ -1464,6 +1471,8 @@ router.get('/products_by_id', (req, res) => {
     })
 })
 ```
+
+---
 
 ### 3-2. Product Image 컴포넌트 만들기
 
@@ -1533,10 +1542,8 @@ function ProductImage(props) {
     const [Images, setImages] = useState([])
 
     useEffect(() => {
-
         if (props.detail.images && props.detail.images.length > 0) {
             let images = []
-
             props.detail.images.map(item => {
                 images.push({
                     original: `http://localhost:5000/${item}`,
@@ -1545,7 +1552,6 @@ function ProductImage(props) {
             })
             setImages(images)
         }
-
     }, [props.detail])
 
     return (
@@ -1557,6 +1563,8 @@ function ProductImage(props) {
 
 export default ProductImage
 ```
+
+---
 
 ### 3-3. Product Info 컴포넌트 만들기
 
@@ -1599,6 +1607,8 @@ function ProductInfo(props) {
 export default ProductInfo
 ```
 
+---
+
 ### 3-4. Add to Cart 버튼 만들기
 
 ```js
@@ -1614,6 +1624,15 @@ const userSchema = mongoose.Schema({
         default: []
     },
     ...
+})
+
+// server/routes/users.js
+router.get('/auth', auth, (req, res) => {
+    res.status(200).json({
+        ...
+        cart: req.user.cart,
+        history: req.user.history
+    })
 })
 
 // DetailProductPage/Sections/ProductInfo.js
@@ -1658,8 +1677,7 @@ export function addToCart(id) {
 import {
     ...
     ADD_TO_CART
-} from '../_actions/types';
-
+} from '../_actions/types'
 
 export default function(state={},action){
     switch(action.type){
@@ -1682,9 +1700,9 @@ export default function(state={},action){
   - 상품 개수를 1개 올리기
 - **있지 않다면**
   - 필요한 상품 정보, 상품 ID, 개수 1, 날짜 정보를 다 넣어줘야 함
-- ***
 
 ```js
+// server/routes/users.js
 router.post('/addToCart', auth, (req, res) => {
   // 먼저 User Collection에 해당 유저의 정보를 가져오기
   // auth 미들웨어를 통과하면서 req.user 안에 user 정보가 담긴다
@@ -1696,7 +1714,6 @@ router.post('/addToCart', auth, (req, res) => {
         duplicate = true
       }
     })
-
     // 상품이 이미 있을때 -> 상품 개수를 1개 올리기
     if (duplicate) {
       User.findOneAndUpdate(
@@ -1710,7 +1727,6 @@ router.post('/addToCart', auth, (req, res) => {
         }
       )
     }
-
     // 상품이 이미 있지 않을때 -> 필요한 상품 정보 상품 ID 개수 1, 날짜 정도 다 넣어줘야함
     else {
       User.findOneAndUpdate(
@@ -1733,4 +1749,63 @@ router.post('/addToCart', auth, (req, res) => {
     }
   })
 })
+```
+
+---
+
+## 4. 카트 페이지 만들기
+
+### 4-1. Add to Cart 기능 개선 및 카트 Tab 만들기
+
+- **빈 쇼핑 카트 페이지 만들기**
+- **카트 페이지 Route 만들기**
+- **Cart 페이지를 위한 탭을 만들기**
+  - [Badge](https://ant.design/components/badge/)
+
+```js
+// CartPage.js
+import React from 'react'
+
+function CartPage() {
+    return (
+        <div>
+            CartPage
+        </div>
+    )
+}
+
+export default CartPage
+
+// App.js
+import CartPage from './views/CartPage/CartPage'
+
+function App() {
+  return (
+    <Suspense fallback={(<div>Loading...</div>)}>
+      <NavBar />
+      <div style={{ paddingTop: '69px', minHeight: 'calc(100vh - 80px)' }}>
+        <Switch>
+          <Route exact path="/user/cart" component={Auth(CartPage, true)} />
+        </Switch>
+      </div>
+      <Footer />
+    </Suspense>
+  )
+}
+
+// RightMenu.js
+...
+} else {
+    return (
+      <Menu mode={props.mode}>
+        <Menu.Item key="cart" style={{ paddingBottom: 3 }}>
+          <Badge count={5}>
+           <a href="/user/cart" className="head-example" style={{ marginRight: -22, color: '#667777'  }}>
+              <Icon type="shopping-cart" style={{ fontSize: 30, marginBottom: 3 }}/>
+            </a>
+          </Badge>
+        </Menu.Item>
+      </Menu>
+    )
+  }
 ```
