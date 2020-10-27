@@ -2030,3 +2030,67 @@ tr:nth-child(even) {
   background-color: #dddddd;
 }
 ```
+
+### 4-5. 카트에 담긴 상품 정보 가져오는 부분 코드 수정
+
+```js
+// server/routes/product.js
+router.get('/products_by_id', (req, res) => {
+  ...
+  Product.find({ _id: { $in: productIds } })
+      .populate('writer')
+      .exec((err, product) => {
+          if (err) return res.status(400).send(err)
+          return res.status(200).send(product)
+      })
+})
+
+// DetailProductPage.js
+function DetailProductPage(props) {
+  ...
+  useEffect(() => {
+
+        axios.get(`/api/product/products_by_id?id=${productId}&type=single`)
+            .then(response => {
+                setProduct(response.data[0])
+            })
+            .catch(err => alert(err))
+    }, [])
+
+    return (
+    ...
+    )
+}
+
+// _actions/user_actions.js
+export function getCartItems(cartItems, userCart) {
+
+    const request = axios.get(`/api/product/products_by_id?id=${cartItems}&type=array`)
+        .then(response => {
+            userCart.forEach(cartItem => {
+                response.data.forEach((productDetail, index) => {
+                    if (cartItem.id === productDetail._id) {
+                        response.data[index].quantity = cartItem.quantity
+                    }
+                })
+            })
+            return response.data
+        })
+
+    return {
+        ...
+    }
+}
+
+// components/views/CartPage/CartPage.js
+function CartPage(props) {
+  ...
+  return (
+        <div style={{ width: '85%', margin: '3rem auto' }}>
+            <h1>My Cart</h1>
+
+            <UserCardBlock products={props.user.cartDetail} />
+        </div>
+    )
+}
+```
