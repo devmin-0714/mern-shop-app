@@ -2101,6 +2101,8 @@ function CartPage(props) {
 }
 ```
 
+---
+
 ### 4-6. 카트에 들어있는 상품들 가격 계산
 
 - **카트 안에 있는 상품 총 금액 계산**
@@ -2154,5 +2156,175 @@ function CartPage(props) {
         ...
     )
 }
+```
 
+---
+
+### 4-7. 카트에 들어 있는 상품 지우기<br>4-8. 카트에 있는 모든 상품 지운 다음 처리할 것들
+
+- **카트에서 제거하는 기능 만들기**
+  - [Empty](https://ant.design/components/empty/)
+
+```js
+// CartPage/Sections/UserCardBlock.js
+function UserCardBlock(props) {
+    ...
+    const renderItems = () => (
+        props.products && props.products.map((product, index) => (
+            <tr key={index}>
+                ...
+                <td>
+                    <button onClick={() => props.removeItem(product._id)}>
+                        Remove
+                    </button>
+                </td>
+            </tr>
+
+        ))
+    )
+
+    return (
+        ...
+    )
+}
+
+// CartPage.js
+import { removeCartItem } from '../../../_actions/user_actions'
+import { Empty } from 'antd'
+
+function CartPage(props) {
+    const [Total, setTotal] = useState(0)
+    const [ShowTotal, setShowTotal] = useState(false)
+
+    let calculateTotal = (cartDetail) => {
+        let total = 0
+
+        cartDetail.map(item => {
+            total += parseInt(item.price, 10) * item.quantity
+        })
+
+        setTotal(total)
+        setShowTotal(true)
+    }
+
+    let removeFromCart = (productId) => {
+
+        dispatch(removeCartItem(productId))
+            .then(response => {
+                if (response.payload.productInfo.length <= 0) {
+                    setShowTotal(false)
+                }
+            })
+    }
+
+    return (
+        <div style={{ width: '85%', margin: '3rem auto' }}>
+            <h1>My Cart</h1>
+
+            <div>
+                <UserCardBlock products={props.user.cartDetail} removeItem={removeFromCart} />
+            </div>
+
+            {ShowTotal ?
+                <div style={{ marginTop: '3rem' }}>
+                    <h2>Total Amount: ${Total}</h2>
+                </div>
+                :
+                <>
+                    <br/>
+                    <Empty description={false} />
+                </>
+            }
+
+        </div>
+    )
+}
+
+// _actions/user_actions.js
+import {
+    ...
+    REMOVE_CART_ITEM
+} from './types';
+
+export function removeCartItem(productId) {
+
+    const request = axios.get(`/api/users/removeFromCart?id=${productId}`)
+        .then(response => {
+
+           // productInfo, cart 정보를 조합해서 CartDetail을 만든다.
+           response.data.cart.forEach(item => {
+                response.data.productInfo.forEach((product, index) => {
+                    if (item.id === product._id) {
+                        response.data.productInfo[index].quantity = item.quantity
+                  }
+
+                })
+            })
+            return response.data
+        })
+
+    return {
+        type: REMOVE_CART_ITEM,
+        payload: request
+    }
+}
+
+// _actions/types.js
+export const REMOVE_CART_ITEM = 'remove_cart_item'
+
+// reducers_/user_reducer.js
+import {
+    ...
+    REMOVE_CART_ITEM
+} from '../_actions/types';
+
+export default function(state={},action){
+    switch(action.type){
+       ...
+        case REMOVE_CART_ITEM:
+            return {
+                ...state, cartDetail: action.payload.productInfo,
+                userData: {
+                    ...state.userData,
+                    cart: action.payload.cart
+                }
+            }
+        default:
+            return state;
+    }
+}
+
+// server/routes/users.js
+const { Product } = require('../models/Product')
+
+router.get('/removeFromCart', auth, (req, res) => {
+
+    // **먼저 cart안에 내가 지우려고 한 상품을 지워주기**
+    User.findOneAndUpdate(
+        { _id: req.user._id },
+        {
+            "$pull":
+                { "cart": { "id": req.query.id } }
+        },
+        { new: true },
+        (err, userInfo) => {
+            let cart = userInfo.cart;
+            let array = cart.map(item => {
+                return item.id
+            })
+
+            // **product collection에서  현재 남아있는 상품들의 정보를 가져오기**
+
+            // productIds = ['5e8961794be6d81ce2b94752(2번째)', '5e8960d721e2ca1cb3e30de4(3번째)'] 이런식으로 바꿔주기
+            Product.find({ _id: { $in: array } })
+                .populate('writer')
+                .exec((err, productInfo) => {
+                    return res.status(200).json({
+                        productInfo,
+                        cart
+                    })
+                })
+        }
+    )
+})
 ```
