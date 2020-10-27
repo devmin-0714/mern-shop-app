@@ -2331,7 +2331,7 @@ router.get('/removeFromCart', auth, (req, res) => {
 
 ---
 
-### 4-9. Paypal 버튼 만들기
+### 4-9. Paypal 버튼 만들기<br>4-10. Paypal로 결제하기
 
 - **SandBox Paypal 회원 가입**
 - **Paypal을 위한 test ID 만들기**
@@ -2371,8 +2371,14 @@ module.exports = { Payment }
 ```
 
 - **Paypal Button 만들기**
+
   - `npm install react-paypal-express-checkout --save` (`Client` 경로)
   - [react-paypal-express-checkout](https://www.npmjs.com/package/react-paypal-express-checkout)
+
+- **Paypal로 결제하기**
+  - [My apps & credentials](https://developer.paypal.com/developer/applications/)
+- `Create app` -> `App Name` -> `Client ID` -> `Paypal.js`의 `sandbox`
+- `Paypal` 버튼 클릭 후 로그인 할 때 `ID`는 `Sandbox Accounts`의 `Account Name`
 
 ```js
 // utils/Paypal.js
@@ -2409,7 +2415,7 @@ export default class Paypal extends React.Component {
 
     const client = {
       sandbox:
-        'ATHoaUPgCKoNOD4pExA8Nx_lszXC5VN2QPGdswTRv5i_v0VPFVIs8jCGdVmcZuMwWNHeV10Z1RMDXhRl',
+        'YQLUoERa2zPTNGSFq3o9QBQPqw2pc3DKnWDn5RrchIixQUF9__bLP0cFpgfgLyh1EGt4S9NJk_H',
       production: 'YOUR-PRODUCTION-APP-ID',
     }
     // In order to get production's app-ID, you will have to send your app to Paypal for approval first
@@ -2447,7 +2453,9 @@ function CartPage(props) {
     return (
       ...
       {ShowTotal &&
-          <Paypal />
+          <Paypal
+            total={Total}
+          />
       }
     )
 }

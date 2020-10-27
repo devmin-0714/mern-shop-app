@@ -71,7 +71,9 @@ function CartPage(props) {
             }
 
             {ShowTotal &&
-                <Paypal />
+                <Paypal 
+                    total={Total}
+                />
             }
 
         </div>  
