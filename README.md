@@ -1809,3 +1809,124 @@ function App() {
     )
   }
 ```
+
+### 4-2. 카트에 담긴 상품 정보들을 데이터베이스에서 가져오기
+
+- **카트 안에 들어가 있는 상품들을 데이터베이스에서 가져오기**
+  - `User Collection`, `Product Collection`
+  - 차이점 : `Quantity`가 있는지 없는지
+  - 그래서 : `Product Collection`도 Quantity 정보가 필요
+
+```js
+// CartPage.js
+import React, { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { getCartItems } from '../../../_actions/user_actions'
+
+function CartPage(props) {
+
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+
+        let cartItems = []
+
+        // 리덕스 User state의 cart 안에 상품이 들어있는지 확인
+        if (props.user.userData && props.user.userData.cart) {
+            if (props.user.userData.cart.length > 0) {
+                props.user.userData.cart.forEach(item => {
+                    cartItems.push(item.id)
+                })
+
+                dispatch(getCartItems(cartItems, props.user.userData.cart))
+            }
+        }
+
+
+    }, [props.user.userData])
+
+    return (
+        <div>
+            CartPage
+        </div>
+    )
+}
+
+export default CartPage
+
+// _actions/user_actions.js
+import axios from 'axios';
+import {
+    ...
+    GET_CART_ITEMS
+} from './types';
+
+export function getCartItems(cartItems, userCart) {
+
+    const request = axios.get(`/api/product/products_by_id?id=${cartItems}&type=array`)
+        .then(response => {
+            // CartItem들에 해당하는 정보들을
+            // Product Collection에서 가져온후에
+            // Quantity 정보를 넣어 준다.
+            userCart.forEach(cartItem => {
+                response.data.product.forEach((productDetail, index) => {
+                    if (cartItem.id === productDetail._id) {
+                        response.data.product[index].quantity = cartItem.quantity
+                    }
+                })
+            })
+            return response.data
+        })
+
+    return {
+        type: GET_CART_ITEMS,
+        payload: request
+    }
+}
+
+// _actions//types.js
+export const GET_CART_ITEMS = 'get_cart_items'
+
+// _reducers/user_reducer.js
+import {
+    ...
+    GET_CART_ITEMS
+} from '../_actions/types';
+
+export default function(state={},action){
+    switch(action.type){
+            ...
+            case GET_CART_ITEMS:
+                return { ...state, cartDetail: action.payload }
+        default:
+            return state;
+    }
+}
+
+// server/routes/product.js
+//id=123123123,324234234,324234234  type=array
+router.get('/products_by_id', (req, res) => {
+
+   // query를 이용해서 가져올때는 req.query
+  let type = req.query.type
+  let productIds = req.query.id
+
+  if (type === "array") {
+      //id=123123123,324234234,324234234 이거를
+      //productIds = ['123123123', '324234234', '324234234'] 이런식으로 바꿔주기
+      let ids = req.query.id.split(',')
+      productIds = ids.map(item => {
+          return item
+      })
+  }
+
+  //productId를 이용해서 DB에서  productId와 같은 상품의 정보를 가져온다.
+
+  Product.find({ _id: { $in: productIds } })
+      .populate('writer')
+      .exec((err, product) => {
+          if (err) return res.status(400).send(err)
+          return res.status(200).json({ success: true, product })
+      })
+})
+```
