@@ -1811,6 +1811,8 @@ import { Menu, Icon, Badge } from 'antd'
   }
 ```
 
+---
+
 ### 4-2. 카트에 담긴 상품 정보들을 데이터베이스에서 가져오기
 
 - **카트 안에 들어가 있는 상품들을 데이터베이스에서 가져오기**
@@ -1932,6 +1934,8 @@ router.get('/products_by_id', (req, res) => {
 })
 ```
 
+---
+
 ### 4-4. 데이터베이스에서 가져온 상품 정보들을 화면에서 보여주기
 
 - **Cart page를 위한 UI 만들기**
@@ -1955,7 +1959,7 @@ function CartPage(props) {
     )
 }
 
-// components/views/CartPage/Sections/UserCardBlock.js
+// CartPage/Sections/UserCardBlock.js
 import React from 'react'
 import './UserCardBlock.css'
 
@@ -2012,7 +2016,7 @@ function UserCardBlock(props) {
 
 export default UserCardBlock
 
-// components/views/CartPage/Sections/UserCardBlock.css
+// CartPage/Sections/UserCardBlock.css
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
@@ -2030,6 +2034,8 @@ tr:nth-child(even) {
   background-color: #dddddd;
 }
 ```
+
+---
 
 ### 4-5. 카트에 담긴 상품 정보 가져오는 부분 코드 수정
 
@@ -2082,7 +2088,7 @@ export function getCartItems(cartItems, userCart) {
     }
 }
 
-// components/views/CartPage/CartPage.js
+// CartPage.js
 function CartPage(props) {
   ...
   return (
@@ -2093,4 +2099,60 @@ function CartPage(props) {
         </div>
     )
 }
+```
+
+### 4-6. 카트에 들어있는 상품들 가격 계산
+
+- **카트 안에 있는 상품 총 금액 계산**
+  - `item price x quantity`
+
+```js
+// CartPage/Sections/UserCardBlock.js
+function UserCardBlock(props) {
+    ...
+    const renderItems = () => (
+        props.products && props.products.map((product, index) => (
+            <tr key={index}>
+                ...
+            </tr>
+        ))
+    )
+
+    return (
+        ...
+    )
+}
+
+// CartPage.js
+function CartPage(props) {
+
+    const [Total, setTotal] = useState(0)
+
+    useEffect(() => {
+
+        // 리덕스 User state의 cart 안에 상품이 들어있는지 확인
+        if (props.user.userData && props.user.userData.cart) {
+            if (props.user.userData.cart.length > 0) {
+                ...
+                dispatch(getCartItems(cartItems, props.user.userData.cart))
+                    .then(response => { calculateTotal(response.payload) })
+            }
+        }
+    }, [props.user.userData])
+
+    let calculateTotal = (cartDetail) => {
+        let total = 0
+
+        cartDetail.map(item => {
+            total += parseInt(item.price, 10) * item.quantity
+        })
+
+        setTotal(total)
+    }
+
+    return (
+        ...
+    )
+}
+
 ```
