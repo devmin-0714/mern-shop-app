@@ -2644,3 +2644,93 @@ router.post('/successBuy', auth, (req, res) => {
 ```
 
 ---
+
+## 5. 결제 내역 페이지 만들기
+
+- **빈 History 페이지 만들기**
+- **History page를 위한 Route 만들기**
+- **History data를 가져오기**
+- **가져온 데이터들을 화면에 보여주기**
+
+```js
+// App.js
+import HistoryPage from './views/HistoryPage/HistoryPage'
+
+function App() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NavBar />
+      <div style={{ paddingTop: '69px', minHeight: 'calc(100vh - 80px)' }}>
+        <Switch>
+          ...
+          <Route exact path="/history" component={Auth(HistoryPage, true)} />
+        </Switch>
+      </div>
+      <Footer />
+    </Suspense>
+  )
+}
+
+// NavBar/Sections/RightMenu.js
+function RightMenu(props) {
+// 로그인이 안된 상태
+  if (user.userData && !user.userData.isAuth) {
+    return (
+      ...
+    )
+  // 로그인이 된상태
+  } else {
+    return (
+      <Menu mode={props.mode}>
+        <Menu.Item key="history">
+          <a href="/history">History</a>
+        </Menu.Item>
+        ...
+      </Menu>
+    )
+  }
+}
+
+// History.js
+import React from 'react'
+
+function HistoryPage(props) {
+
+    return (
+        <div style={{ width: '80%', margin: '3rem auto' }}>
+            <div style={{ textAlign: 'center' }}>
+                <h1>History</h1>
+            </div>
+            <br />
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Payment Id</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Date of Purchase</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {props.user.userData && props.user.userData.history &&
+                        props.user.userData.history.map(item => (
+                            <tr key={item.id}>
+                                <td>{item.id}</td>
+                                <td>{item.price}</td>
+                                <td>{item.quantity}</td>
+                                <td>{item.dateOfPurchase}</td>
+                            </tr>
+                        ))}
+
+
+                </tbody>
+            </table>
+        </div>
+    )
+}
+
+export default HistoryPage
+```
